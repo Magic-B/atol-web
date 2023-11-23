@@ -1,19 +1,19 @@
 {
   "name": "atol-web",
-  "version": "1.1.0",
-  "description": "Atol web client",
+  "version": "1.1.2",
+  "description": "",
+  "main": "dist/atol-web.js",
+  "module": "dist/atol-web.mjs",
+  "typings": "dist/atol-web.d.ts",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "typings": "dist/index.d.ts",
-  "dependencies": {
-    "axios": "^1.6.2"
-  },
   "scripts": {
     "build": "rollup -c"
   },
-  "author": "Magic-B",
+  "author": "",
   "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2"
+  },
   "devDependencies": {
     "esbuild": "^0.19.7",
     "rollup": "^4.5.1",
