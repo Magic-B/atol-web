@@ -1,16 +1,12 @@
 import { HttpService } from "./api"
 import { AxiosResponse } from "axios"
 
-export class FptrClient {
-	url: string
-	deviceId: number
-	initialized: boolean
-	http: HttpService
+export class AtolClient {
+	private url: string
+	private http: HttpService
 
-	constructor(url: string, deviceId: number) {
+	constructor(url: string) {
 		this.url = url
-		this.deviceId = deviceId
-		this.initialized = false
 		this.http = new HttpService(this.url)
 	}
 
@@ -44,7 +40,7 @@ export class FptrClient {
 	 * @param {Object} params
 	 * @returns {jqXHR}
 	 */
-	async request(params: object) {
+	private async request(params: object): Promise<AxiosResponse<any, any>> {
 		return await this.http.post('requests', {
 			request: [],
 			...params
@@ -102,9 +98,9 @@ export class FptrClient {
 	 * @param {String} operatorVatin ИНН кассира
 	 * @returns {jqXHR}
 	 */
-	async closeShift(operatorName: string, operatorVatin: string): Promise<AxiosResponse<any, any>> {
+	async closeShift(uuid: string, operatorName: string, operatorVatin: string): Promise<AxiosResponse<any, any>> {
 		return await this.request({
-			//uuid: this._createUUID(), // Необязательно, т.к. uuid генерируется в request
+			uuid,
 			request: [
 				{
 					type: 'closeShift',

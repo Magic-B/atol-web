@@ -14,12 +14,11 @@ export class HttpService {
 	}
 
 	async get(url: string, options: object = {}) {
-
 		const response = await this.client.get(url, options);
 		return response;
 	}
 
-	async post(url: string, params: object = {}, requestParams = {}) {
+	async post(url: string, params: object = {}, requestParams: object = {}) {
 		const response = await this.client.post(url, params, requestParams);
 		return response;
 	}
