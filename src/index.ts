@@ -89,7 +89,9 @@ export class AtolClient {
 
 			const taskResponse = await this.request({
 				uuid,
-				request: taskRequest
+				request: [
+					taskRequest
+				]
 			});
 	
 			return {
@@ -119,7 +121,9 @@ export class AtolClient {
 
 			const taskResponse = await this.request({
 				uuid,
-				request: taskRequest
+				request: [
+					taskRequest
+				]
 			});
 	
 			return {
