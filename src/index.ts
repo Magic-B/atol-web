@@ -1,5 +1,10 @@
 import { HttpService } from "./api"
 import { AxiosResponse } from "axios"
+import {
+	ShiftRequestData,
+	TaskResponse,
+	TaskRequestTypesEnum,
+} from "./types"
 
 export class AtolClient {
 	private url: string
@@ -12,7 +17,6 @@ export class AtolClient {
 
 	/**
 	 * Получает информацию о сервере
-	 * @returns {jqXHR}
 	 */
 	async getServerInfo(): Promise<AxiosResponse<any, any>> {
 		return await this.http.get('serverInfo')
@@ -20,7 +24,6 @@ export class AtolClient {
 
 	/**
 	 * Получает настройки веб-сервера
-	 * @returns {jqXHR}
 	 */
 	async getSettings(): Promise<AxiosResponse<any, any>> {
 		return await this.http.get('settings')
@@ -29,7 +32,6 @@ export class AtolClient {
 	/**
 	 * Изменяет настройки веб-сервера
 	 * @param {Object} params
-	 * @returns {jqXHR}
 	 */
 	async setSettings(params: object): Promise<AxiosResponse<any, any>> {
 		return await this.http.put('settings', params);
@@ -38,9 +40,8 @@ export class AtolClient {
 	/**
 	 * Добавляет новое JSON-задание для ККТ
 	 * @param {Object} params
-	 * @returns {jqXHR}
 	 */
-	private async request(params: object): Promise<AxiosResponse<any, any>> {
+	private async request(params: object): Promise<AxiosResponse<TaskResponse>> {
 		return await this.http.post('requests', {
 			request: [],
 			...params
@@ -51,7 +52,6 @@ export class AtolClient {
 	 * Получает результат выполнения задания
 	 * @param {String} uuid       Идентификатор задания
 	 * @param {Function} callback Callback-функция
-	 * @returns {undefined}
 	 */
 	async getTaskResult(uuid: string, callback: Function): Promise<void> {
 		var self = this;
@@ -73,49 +73,66 @@ export class AtolClient {
 
 	/**
 	 * Открывает смену
+	 * @param {String} uuid  uuid
 	 * @param {String} operatorName  ФИО кассира
 	 * @param {String} operatorVatin ИНН кассира
-	 * @returns {jqXHR}
 	 */
-	async openShift(uuid: string, operatorName: string, operatorVatin: string): Promise<AxiosResponse<any, any>> {
-		return await this.request({
-			uuid,
-			request: [
-				{
-					type: 'openShift',
-					operator: {
-						name: operatorName || '',
-						vatin: operatorVatin + ''
-					}
+	async openShift(uuid: string, operatorName: string, operatorVatin: string): Promise<ShiftRequestData> {
+		try {
+			const taskRequest = {
+				type: TaskRequestTypesEnum.OpenShift,
+				operator: {
+					name: operatorName || '',
+					vatin: operatorVatin || ''
 				}
-			]
-		});
+			}
+
+			const taskResponse = await this.request({
+				uuid,
+				request: taskRequest
+			});
+	
+			return {
+				taskResponse,
+				taskRequest,
+			}
+		} catch(err) {
+			throw err
+		}
 	};
 
 	/**
 	 * Закрывает смену
+	 * @param {String} uuid  uuid
 	 * @param {String} operatorName  ФИО кассира
 	 * @param {String} operatorVatin ИНН кассира
-	 * @returns {jqXHR}
 	 */
-	async closeShift(uuid: string, operatorName: string, operatorVatin: string): Promise<AxiosResponse<any, any>> {
-		return await this.request({
-			uuid,
-			request: [
-				{
-					type: 'closeShift',
-					operator: {
-						name: operatorName || '',
-						vatin: operatorVatin + ''
-					}
+	async closeShift(uuid: string, operatorName: string, operatorVatin: string): Promise<ShiftRequestData> {
+		try {
+			const taskRequest = {
+				type: TaskRequestTypesEnum.CloseShift,
+				operator: {
+					name: operatorName || '',
+					vatin: operatorVatin || ''
 				}
-			]
-		});
+			}
+
+			const taskResponse = await this.request({
+				uuid,
+				request: taskRequest
+			});
+	
+			return {
+				taskResponse,
+				taskRequest,
+			}
+		} catch(err) {
+			throw err
+		}
 	};
 
 	/**
 	 * Запрашивает информацию о смене в ККТ
-	 * @returns {jqXHR}
 	 */
 	async shiftStatus(): Promise<AxiosResponse<any, any>> {
 		return await this.http.post('operations/queryShiftStatus');
