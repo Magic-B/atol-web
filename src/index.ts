@@ -1,14 +1,20 @@
 import { HttpService } from "./api"
 import { AxiosResponse } from "axios"
 import {
-	ShiftRequestData,
 	TaskResponse,
-	TaskRequestTypesEnum,
+	TaskRequestBody,
 } from "./types"
+
+export enum TaskRequestTypes {
+	OpenShift = 'openShift',
+  CloseShift = 'closeShift',
+  ReportX = 'reportX',
+}
 
 export class AtolClient {
 	private url: string
 	private http: HttpService
+	counter = 1
 
 	constructor(url: string) {
 		this.url = url
@@ -49,89 +55,64 @@ export class AtolClient {
 	}
 
 	/**
+	 * Создание тела запроса для задачи
+	 * @param {String} type  Тип задачи
+	 * @param {String} operatorName  ФИО кассира
+	 * @param {String} operatorVatin ИНН кассира
+	 */
+	createTaskRequestBody(type: TaskRequestTypes, operatorName?: string, operatorVatin?: string) {
+		return {
+			type: type,
+			operator: {
+				name: operatorName || '',
+				vatin: operatorVatin || ''
+			}
+		}
+	}
+
+	/**
+	 * Создает задачу на открытие/закрытие/x-отчет и тд.
+	 * @param {Object} taskRequestBody  Тело запроса для создания задачи
+	 * @param {String} uuid  UUID
+	 */
+	async createTask(taskRequestBody: TaskRequestBody, uuid?: string): Promise<AxiosResponse<TaskResponse>> {
+		try {
+
+			const taskResponseData = await this.request({
+				uuid,
+				request: [
+					taskRequestBody
+				]
+			});
+	
+			return taskResponseData
+		} catch(err) {
+			throw err
+		}
+	};
+
+	/**
 	 * Получает результат выполнения задания
 	 * @param {String} uuid       Идентификатор задания
 	 * @param {Function} callback Callback-функция
 	 */
-	async getTaskResult(uuid: string, callback: Function): Promise<void> {
-		var self = this;
+	async getTaskResult(uuid: string, callback: Function, ...args: any[]): Promise<void> {
+		const self = this;
 		const response = await this.http.get('requests/' + uuid)
 
 		if (response.data.results) {
-			if (response.data.results[0].status === 'inProgress') { // Задание ещё не выполнено
+			if (response.data.results[0].status === 'inProgress' || this.counter !== 3) { // Задание ещё не выполнено
 				// Повторно запрашиваем результат
 				setTimeout(function () {
-					self.getTaskResult(uuid, callback);
+					self.getTaskResult(uuid, callback, ...args);
 				}, 1000);
+
+				this.counter += 1
 				return;
 			}
 		}
 		if (callback && typeof callback === 'function') {
-			callback(response.data);
-		}
-	};
-
-	/**
-	 * Открывает смену
-	 * @param {String} uuid  uuid
-	 * @param {String} operatorName  ФИО кассира
-	 * @param {String} operatorVatin ИНН кассира
-	 */
-	async openShift(uuid: string, operatorName: string, operatorVatin: string): Promise<ShiftRequestData> {
-		try {
-			const taskRequest = {
-				type: TaskRequestTypesEnum.OpenShift,
-				operator: {
-					name: operatorName || '',
-					vatin: operatorVatin || ''
-				}
-			}
-
-			const taskResponse = await this.request({
-				uuid,
-				request: [
-					taskRequest
-				]
-			});
-	
-			return {
-				taskResponse,
-				taskRequest,
-			}
-		} catch(err) {
-			throw err
-		}
-	};
-
-	/**
-	 * Закрывает смену
-	 * @param {String} uuid  uuid
-	 * @param {String} operatorName  ФИО кассира
-	 * @param {String} operatorVatin ИНН кассира
-	 */
-	async closeShift(uuid: string, operatorName: string, operatorVatin: string): Promise<ShiftRequestData> {
-		try {
-			const taskRequest = {
-				type: TaskRequestTypesEnum.CloseShift,
-				operator: {
-					name: operatorName || '',
-					vatin: operatorVatin || ''
-				}
-			}
-
-			const taskResponse = await this.request({
-				uuid,
-				request: [
-					taskRequest
-				]
-			});
-	
-			return {
-				taskResponse,
-				taskRequest,
-			}
-		} catch(err) {
-			throw err
+			await callback(...args);
 		}
 	};
 

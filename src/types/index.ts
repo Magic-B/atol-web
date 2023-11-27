@@ -1,12 +1,5 @@
-import { AxiosResponse } from "axios"
-
-export interface ShiftRequestData {
-  taskResponse: AxiosResponse<TaskResponse>;
-  taskRequest: TaskRequest;
-}
-
-export interface TaskRequest {
-  type: TaskRequestTypes;
+export interface TaskRequestBody {
+  type: TaskRequestBodyTypes;
   operator: {
     name: string;
     vatin: string;
@@ -20,9 +13,8 @@ export interface TaskResponse {
   blockedUUID: string;
 }
 
-export type TaskRequestTypes = TaskRequestTypesEnum.OpenShift | TaskRequestTypesEnum.CloseShift
-
-export enum TaskRequestTypesEnum {
+export enum TaskRequestBodyTypes {
   OpenShift = 'openShift',
   CloseShift = 'closeShift',
+  ReportX = 'reportX',
 }
