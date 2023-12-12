@@ -1,10 +1,16 @@
 {
   "name": "atol-web",
-  "version": "1.3.1",
-  "description": "",
+  "version": "1.3.9",
+  "description": "Atol web library",
   "main": "dist/atol-web.js",
   "module": "dist/atol-web.mjs",
   "typings": "dist/atol-web.d.ts",
+  "homepage": "https://github.com/Magic-B/atol-web",
+  "keywords": ["atol", "web", "atol-web", "javascript", "js", "axios", "ts", "typescript", "api"],
+  "bugs": {
+    "url": "https://github.com/Magic-B/atol-web/issues",
+    "email": "mbaliev8@gmail.com"
+  },
   "type": "module",
   "scripts": {
     "build": "rollup -c"

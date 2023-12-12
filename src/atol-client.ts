@@ -1,6 +1,15 @@
 import { HttpService } from "./api"
 import { AxiosResponse } from "axios"
-import { TaskResponse, TaskRequestBody, DeviceInfoResponse, ShiftStatusResponse, FnInfoResponse } from "./types"
+import {
+	TaskResponse,
+	TaskRequestBody,
+	DeviceInfoResponse,
+	DeviceInfo,
+	ShiftStatusResponse,
+	ShiftStatus,
+	FnInfoResponse,
+	FnInfo,
+} from "./types"
 
 export class AtolClient {
 	private url: string
@@ -38,8 +47,9 @@ export class AtolClient {
 	 * Запрашивает информацию о ККТ
 	 * @returns {jqXHR}
 	 */
-	async queryDeviceInfo (): Promise<AxiosResponse<DeviceInfoResponse>> {
-		return this.http.post('operations/queryDeviceInfo');
+	async queryDeviceInfo (): Promise<DeviceInfo> {
+		const response: AxiosResponse<DeviceInfoResponse> = await this.http.post('operations/queryDeviceInfo', null);
+		return response.data.deviceInfo
 	};
 
 
@@ -47,16 +57,18 @@ export class AtolClient {
 	 * Запрашивает информацию о смене в ККТ
 	 * @returns {jqXHR}
 	 */
-	async queryShiftStatus(): Promise<AxiosResponse<ShiftStatusResponse>> {
-		return this.http.post('operations/queryShiftStatus');
+	async queryShiftStatus(): Promise<ShiftStatus> {
+		const response: AxiosResponse<ShiftStatusResponse> = await this.http.post('operations/queryShiftStatus', null);
+		return response.data.shiftStatus
 	};
 
 	/**
 	 * Запрос информации о ФН
 	 * @returns {jqXHR}
 	 */
-	async queryFnInfo(): Promise<AxiosResponse<FnInfoResponse>> {
-		return this.http.post('operations/queryFnInfo');
+	async queryFnInfo(): Promise<FnInfo> {
+		const response: AxiosResponse<FnInfoResponse> = await this.http.post('operations/queryFnInfo', null);
+		return response.data.fnInfo
 	};
 
 	/**
@@ -78,6 +90,8 @@ export class AtolClient {
 	 * @param {Function} callback Callback-функция
 	 */
 	async getTaskResult(uuid: string, callback: Function, ...args: any[]): Promise<void> {
+		let taskResult = null;
+
 		while (true) {
 			const response = await this.http.get('requests/' + uuid);
 		
@@ -85,19 +99,19 @@ export class AtolClient {
 				if (response.data.results[0].status === 'inProgress') {
 					await new Promise(resolve => setTimeout(resolve, 1000));
 				} else {
+					taskResult = response.data
 					break;
 				}
 			}
 		};
+
+		if (taskResult.results[0].status === 'error') {
+			throw new Error(`Error code ${taskResult.results[0].error.code}: ${taskResult.results[0].error.description}`);
+		}
+		
 		if (callback && typeof callback === 'function') {
 			await callback(...args);
 		}
 	};
-
-	/**
-	 * Запрашивает информацию о смене в ККТ
-	 */
-	async shiftStatus(): Promise<AxiosResponse<any, any>> {
-		return await this.http.post('operations/queryShiftStatus');
-	}
 }
+

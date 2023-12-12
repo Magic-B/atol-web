@@ -18,7 +18,7 @@ export class HttpService {
 		return response;
 	}
 
-	async post(url: string, params: object = {}, requestParams: object = {}) {
+	async post(url: string, params: object | null = {}, requestParams: object = {}) {
 		const response = await this.client.post(url, params, requestParams);
 		return response;
 	}
