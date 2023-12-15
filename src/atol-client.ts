@@ -87,9 +87,8 @@ export class AtolClient {
 	/**
 	 * Получает результат выполнения задания
 	 * @param {String} uuid       Идентификатор задания
-	 * @param {Function} callback Callback-функция
 	 */
-	async getTaskResult(uuid: string, callback: Function, ...args: any[]): Promise<void> {
+	async getTaskResult(uuid: string): Promise<void> {
 		let taskResult = null;
 
 		while (true) {
@@ -105,13 +104,7 @@ export class AtolClient {
 			}
 		};
 
-		if (taskResult.results[0].status === 'error') {
-			throw new Error(`Error code ${taskResult.results[0].error.code}: ${taskResult.results[0].error.description}`);
-		}
-		
-		if (callback && typeof callback === 'function') {
-			await callback(...args);
-		}
+		return taskResult.results[0];
 	};
 }
 

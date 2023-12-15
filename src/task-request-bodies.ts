@@ -3,6 +3,7 @@ import {
   OpenCloseShiftTaskRequestBody,
   ReportXTaskRequestBody,
   SalesReciptTaskRequestBody,
+  PrintFnDocumentRequestBody,
   SellItems,
   PaymentTypes,
 } from "./types";
@@ -87,6 +88,18 @@ export const sellReturnReceiptBody = (uuid: string, operatorName: string, operat
         payments: [],
         items,
         total
+      }
+    ]
+  }
+}
+
+export const printFnDocumentBody = (uuid: string, fiscalDocumentNumber: number): PrintFnDocumentRequestBody => {
+  return {
+    uuid,
+    request: [
+      {
+        type: TaskRequestBodyTypes.PrintFnDocument,
+        fiscalDocumentNumber
       }
     ]
   }

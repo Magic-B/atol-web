@@ -63,6 +63,7 @@ export enum TaskRequestBodyTypes {
   ReportX = 'reportX',
   Sell = 'sell',
   SellReturn = 'sellReturn',
+  PrintFnDocument = 'printFnDocument'
 }
 
 interface TaskRequestUuid {
@@ -115,6 +116,14 @@ interface SellReceiptTaskRequest extends TaskRequestType, TaskRequestOperator {
 
 export interface SalesReciptTaskRequestBody extends TaskRequestUuid {
   request: SellReceiptTaskRequest[];
+}
+
+interface PrintFnDocumentRequest extends TaskRequestType {
+  fiscalDocumentNumber: number;
+}
+
+export interface PrintFnDocumentRequestBody extends TaskRequestUuid {
+  request: PrintFnDocumentRequest[];
 }
 
 export enum PaymentTypes {
